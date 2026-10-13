@@ -57,9 +57,17 @@ html{touch-action:manipulation;overscroll-behavior:none;-webkit-touch-callout:no
 #choose p{margin:0 0 6px;font-size:18px}
 #choose button{font:inherit;font-size:22px;width:min(300px,80vw);padding:16px;border-radius:14px;border:3px solid #ffd34f;background:#5a2d0f;color:#fff8e6;cursor:pointer;touch-action:manipulation}
 #choose button:hover,#choose button:active{background:#7a3d12}
-body.phone #app{grid-template-columns:1fr;grid-template-rows:58% 42%}
-body.phone #right{border-left:0;border-top:3px solid #ffd34f}
-body.phone #big{width:min(46vw,210px,30vh)}
+.sbtn{display:none;font:inherit;font-size:18px;padding:12px 22px;border-radius:14px;border:3px solid #ffd34f;background:#5a2d0f;color:#fff8e6;touch-action:manipulation;margin-top:6px;cursor:pointer}
+body.phone .sbtn{display:block}
+#closeStore{position:sticky;top:0;width:100%;margin:0 0 8px;z-index:2}
+body.phone #app{grid-template-columns:1fr;grid-template-rows:100%}
+body.phone #left{padding:8px;padding-bottom:calc(12px + env(safe-area-inset-bottom,0px))}
+body.phone #right{position:fixed;inset:0;z-index:50;border:0;display:none;padding:12px;padding-top:calc(12px + env(safe-area-inset-top,0px));-webkit-overflow-scrolling:touch}
+body.phone.store #right{display:block}
+body.phone #nameWrap{font-size:15px;padding:4px 10px}
+body.phone #count{font-size:24px;padding:4px 14px;margin-top:8px}
+body.phone #clicks{margin-bottom:4px}
+body.phone #big{width:min(72vw,320px,40vh)}
 body.phone #title{font-size:24px}
 body.phone .item{padding:10px}
 </style></head><body>
@@ -167,9 +175,11 @@ body.phone .item{padding:10px}
    </svg>
   </div>
   <div id="clicks">Clicks: <b id="clk">0</b></div>
+  <button class="sbtn" id="openStore">🛒 Store & Upgrades</button>
   <div id="fall"></div>
  </div>
  <div class="panel" id="right">
+  <button class="sbtn" id="closeStore">← Back to game</button>
   <h3>Upgrades</h3><div id="ups"></div>
   <h3>Store</h3><div id="store" style="width:100%"></div>
   <div style="text-align:center;font-size:11px;opacity:.6;margin:10px 0"><span id="reset" style="cursor:pointer;text-decoration:underline">Reset game</span></div>
@@ -307,9 +317,12 @@ function pick(m){document.body.classList.add(m);$('choose').style.display='none'
   document.addEventListener('gesturechange',e=>e.preventDefault());
   document.addEventListener('dblclick',e=>e.preventDefault());
   document.addEventListener('touchstart',e=>{if(e.touches.length>1)e.preventDefault()},{passive:false});
-  let lt=0;document.addEventListener('touchend',e=>{const n=Date.now();if(n-lt<350&&!e.target.closest('#right'))e.preventDefault();lt=n},{passive:false});
+  let lt=0;document.addEventListener('touchend',e=>{const n=Date.now();if(n-lt<350&&!e.target.closest('#right,.sbtn'))e.preventDefault();lt=n},{passive:false});
  }
 }
+$('openStore').onclick=()=>{document.body.classList.add('store');$('right').scrollTop=0};
+$('closeStore').onclick=()=>document.body.classList.remove('store');
+setInterval(()=>{const ok=ITEMS.some(it=>S.clicks>=it.at&&S.prem>=cost(it))||UPS.some(u=>!S.ups.includes(u.id)&&S.prem>=u.cost);$('openStore').textContent='🛒 Store & Upgrades'+(ok?' ●':'')},500);
 $('pPhone').onclick=()=>pick('phone');$('pDesk').onclick=()=>pick('desktop');
 showName();buildUps();update();
 </script>
